@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>The Holiday Hub 2026: 110 Edition</title>
+    <title>The Holiday Hub 2026: 150 Edition</title>
     <style>
         :root {
             --bg-color: #1a1e23;
@@ -117,7 +117,7 @@
         #cheats-modal .modal { border-color: #f1c40f; }
         
         .modal h2 { margin-top: 0; color: var(--accent-secondary); border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; flex-shrink: 0;}
-        #cheats-modal h2 { color: #f1c40f; cursor: help; }
+        #cheats-modal h2 { color: #f1c40f; cursor: help; user-select: none; }
 
         .modal-content {
             overflow-y: auto;
@@ -337,7 +337,7 @@
 
         <div class="phase-badge" id="current-phase">System Loading...</div>
 
-        <div class="countdown-label">Next Stop: <span class="target-name" id="target-name">...</span></div>
+        <div class="countdown-label">Next Holiday: <span class="target-name" id="target-name">...</span></div>
 
         <div class="countdown-grid">
             <div class="time-box"><span class="time-number" id="days">000</span><span class="time-label">Days</span></div>
@@ -359,7 +359,7 @@
         <div class="achievements-section">
             <div class="section-header">
                 <div class="section-title">Badge Collection</div>
-                <div class="badge-counter" id="badge-count">0 / 110</div>
+                <div class="badge-counter" id="badge-count">0 / 150</div>
             </div>
             <div class="badges-grid" id="badges-container"></div>
         </div>
@@ -374,6 +374,9 @@
         // --- CONFIGURATION ---
         const globalStart = new Date("December 26, 2025 00:00:00").getTime();
         const globalEnd = new Date("December 25, 2026 00:00:00").getTime();
+        let unlockedBadges = JSON.parse(localStorage.getItem('xmas26_badges')) || [];
+        let currentPhaseIndex = -1;
+        let debugClicks = 0;
 
         const milestones = [
             { name: "New Year's", date: new Date(2026, 0, 1), colors: { bg: "#000", card: "#1c1c1c", p1: "#f1c40f", p2: "#bdc3c7", text: "#fff" }, particle: ["✨", "🥂"] },
@@ -386,10 +389,10 @@
             { name: "Christmas '26", date: new Date(2026, 11, 25), colors: { bg: "#1a1e23", card: "#252a30", p1: "#e74c3c", p2: "#2ecc71", text: "#ecf0f1" }, particle: ["❄️", "🎄"] }
         ];
 
-        // --- 110 BADGES ---
+        // --- 150 BADGES ---
         const badges = [
-            // TIME OF DAY
             { id: "early_bird", name: "Early Bird", icon: "🐦", desc: "Visit before 2026 starts", check: (gp) => new Date().getFullYear() === 2025 },
+            { id: "year_2026", name: "2026 Club", icon: "📅", desc: "Visit during 2026", check: () => new Date().getFullYear() === 2026 },
             { id: "midnight", name: "Midnight", icon: "🕛", desc: "Visit at 00:00", check: () => { const d=new Date(); return d.getHours()===0 && d.getMinutes()===0; } },
             { id: "insomniac", name: "Insomniac", icon: "🥱", desc: "Visit at 2 AM", check: () => new Date().getHours()===2 },
             { id: "zombie", name: "Zombie", icon: "🧟", desc: "Visit 4 AM - 5 AM", check: () => new Date().getHours()===4 },
@@ -401,16 +404,21 @@
             { id: "lunch", name: "Lunch", icon: "🍔", desc: "Visit 12PM-1PM", check: () => new Date().getHours()===12 },
             { id: "sequence", name: "Sequence", icon: "🔢", desc: "Visit at 12:34", check: () => { const d=new Date(); return d.getHours()===12 && d.getMinutes()===34; } },
             { id: "leet", name: "Leet", icon: "👾", desc: "Visit at 1:37 PM", check: () => { const d=new Date(); return d.getHours()===13 && d.getMinutes()===37; } },
+            { id: "siesta", name: "Siesta", icon: "😴", desc: "Visit 2PM-3PM", check: () => new Date().getHours()===14 },
             { id: "tea_time", name: "Tea Time", icon: "🫖", desc: "Visit 3PM-4PM", check: () => new Date().getHours()===15 },
             { id: "chill", name: "Chill", icon: "🌿", desc: "Visit at 4:20 PM", check: () => { const d=new Date(); return d.getHours()===16 && d.getMinutes()===20; } },
             { id: "happy_hour", name: "Happy Hour", icon: "🍹", desc: "Visit 5PM-6PM", check: () => new Date().getHours()===17 },
             { id: "angel", name: "Angel", icon: "👼", desc: "Visit at 5:55", check: () => { const d=new Date(); const h=d.getHours(); return (h===5||h===17) && d.getMinutes()===55; } },
             { id: "sunset", name: "Sunset", icon: "🌇", desc: "Visit 6PM-8PM", check: () => { const h=new Date().getHours(); return h>=18 && h<20; } },
             { id: "prime_time", name: "Prime Time", icon: "📺", desc: "Visit 8PM-9PM", check: () => new Date().getHours()===20 },
+            { id: "party", name: "Party", icon: "🥳", desc: "Sat Night (8pm-12am)", check: () => { const d=new Date(); return d.getDay()===6 && d.getHours()>=20; } },
             { id: "eleventh", name: "11th Hour", icon: "🕰️", desc: "Visit at 11 PM", check: () => new Date().getHours()===23 },
+            { id: "mid_snack", name: "Snack", icon: "🥨", desc: "Visit 12AM-1AM", check: () => new Date().getHours()===0 },
             { id: "night_owl", name: "Night Owl", icon: "🦉", desc: "Visit 11PM-4AM", check: () => { const h=new Date().getHours(); return h>=23 || h<=4; } },
             { id: "witching", name: "Witching Hr", icon: "🧙", desc: "Visit exactly at 3 AM", check: () => new Date().getHours() === 3 },
             { id: "wish_maker", name: "Make a Wish", icon: "🌠", desc: "Visit at 11:11", check: () => { const d=new Date(); const h=d.getHours(); return (h===11 || h===23) && d.getMinutes()===11; } },
+            { id: "minute_man", name: "Quick", icon: "⚡", desc: "First 10s of a minute", check: () => new Date().getSeconds() < 10 },
+            { id: "buzzer", name: "Buzzer", icon: "🚨", desc: "Last 10s of a minute", check: () => new Date().getSeconds() > 50 },
             { id: "on_the_dot", name: "On the Dot", icon: "🎯", desc: "Visit at :00 seconds", check: () => new Date().getSeconds() === 0 },
             { id: "palindrome", name: "Palindrome", icon: "🔁", desc: "Visit at 10:01, 12:21, etc", check: () => { const d=new Date(); const h=d.getHours(); const m=d.getMinutes(); const t = (h<10?'0'+h:h) + '' + (m<10?'0'+m:m); return t === t.split('').reverse().join(''); } },
 
@@ -419,35 +427,45 @@
             { id: "hump_day", name: "Hump Day", icon: "🐫", desc: "Visit on Wednesday", check: () => new Date().getDay() === 3 },
             { id: "thirsty", name: "Thirsty", icon: "🥤", desc: "Visit on Thursday", check: () => new Date().getDay() === 4 },
             { id: "tgif", name: "TGIF", icon: "🎉", desc: "Visit on Friday", check: () => new Date().getDay() === 5 },
+            { id: "worker_v2", name: "Overtime", icon: "💼", desc: "Visit after 6 PM on Friday", check: () => { const d=new Date(); return d.getDay()===5 && d.getHours()>=18; } },
             { id: "weekend", name: "Weekender", icon: "🌴", desc: "Visit Sat or Sun", check: () => { const d=new Date().getDay(); return d===0 || d===6; } },
             { id: "sunday_fun", name: "Sunday", icon: "☀️", desc: "Visit on Sunday", check: () => new Date().getDay() === 0 },
+            { id: "brunch", name: "Brunch", icon: "🥂", desc: "Sun 11AM-1PM", check: () => { const d=new Date(); return d.getDay()===0 && d.getHours()>=11 && d.getHours()<13; } },
             { id: "worker", name: "Worker Bee", icon: "💼", desc: "Mon-Fri 9-5", check: () => { const d=new Date(); const h=d.getHours(); return d.getDay()>0 && d.getDay()<6 && h>=9 && h<17; } },
+            { id: "rush_hour", name: "Rush Hour", icon: "🚗", desc: "Mon-Fri 5-6PM", check: () => { const d=new Date(); const h=d.getHours(); return d.getDay()>0 && d.getDay()<6 && h===17; } },
             { id: "payday", name: "Payday", icon: "💰", desc: "Visit on 15th or 30th", check: () => { const d=new Date().getDate(); return d===15 || d===30; } },
             { id: "prime_date", name: "Prime Date", icon: "3️⃣7️⃣", desc: "Visit on the 31st", check: () => new Date().getDate() === 31 },
             { id: "snake_eyes", name: "Snake Eyes", icon: "🎲", desc: "Visit on the 11th", check: () => new Date().getDate() === 11 },
             { id: "dozen", name: "Dozen", icon: "🍩", desc: "Visit on 12/12", check: () => { const d=new Date(); return d.getMonth()===11 && d.getDate()===12; } },
+            { id: "lucky_7", name: "Lucky 7", icon: "🎰", desc: "7th at 7PM", check: () => { const d=new Date(); return d.getDate()===7 && d.getHours()===19; } },
+            { id: "devil_6", name: "Beast Hour", icon: "😈", desc: "6th at 6PM", check: () => { const d=new Date(); return d.getDate()===6 && d.getHours()===18; } },
             { id: "sweet_16", name: "Sweet 16", icon: "🎂", desc: "Visit on the 16th", check: () => new Date().getDate() === 16 },
-            { id: "deadline", name: "Deadline", icon: "📅", desc: "Visit Jan 31st", check: () => { const d=new Date(); return d.getMonth()===0 && d.getDate()===31; } },
-
+            
             // PROGRESS
             { id: "baby_step", name: "Baby Step", icon: "👣", desc: "0.01% Global Progress", check: (gp) => gp >= 0.01 },
             { id: "one_pct", name: "1% Club", icon: "🌱", desc: "1% Global Progress", check: (gp) => gp >= 1 },
             { id: "five_pct", name: "5 Percent", icon: "👶", desc: "5% Global Progress", check: (gp) => gp >= 5 },
             { id: "ten_pct", name: "Double Digits", icon: "🚀", desc: "10% Global Progress", check: (gp) => gp >= 10 },
+            { id: "bronze", name: "Bronze", icon: "🥉", desc: "15% Global Progress", check: (gp) => gp >= 15 },
             { id: "quarter", name: "Quarter", icon: "¼", desc: "25% Global Progress", check: (gp) => gp >= 25 },
             { id: "third", name: "One Third", icon: "🍰", desc: "33% Global Progress", check: (gp) => gp >= 33.3 },
+            { id: "silver", name: "Silver", icon: "🥈", desc: "40% Global Progress", check: (gp) => gp >= 40 },
             { id: "the_answer", name: "The Answer", icon: "👽", desc: "42% Global Progress", check: (gp) => gp >= 42 },
             { id: "halfway", name: "Halfway", icon: "⛰️", desc: "50% Global Progress", check: (gp) => gp >= 50 },
             { id: "beast", name: "The Beast", icon: "🔥", desc: "66.6% Global Progress", check: (gp) => gp >= 66.6 },
             { id: "three_qt", name: "3/4 Done", icon: "¾", desc: "75% Global Progress", check: (gp) => gp >= 75 },
+            { id: "gold", name: "Gold", icon: "🥇", desc: "80% Global Progress", check: (gp) => gp >= 80 },
             { id: "almost", name: "Almost", icon: "🤏", desc: "95% Global Progress", check: (gp) => gp >= 95 },
             { id: "endgame", name: "Endgame", icon: "🏁", desc: "99% Global Progress", check: (gp) => gp >= 99 },
 
             // DATES 2026 (Specific)
             { id: "clean_slate", name: "Clean Slate", icon: "🧼", desc: "Visit Jan 1-7", check: () => { const d=new Date(); return d.getMonth()===0 && d.getDate()<=7; } },
+            { id: "deadline", name: "Deadline", icon: "📅", desc: "Visit Jan 31st", check: () => { const d=new Date(); return d.getMonth()===0 && d.getDate()===31; } },
             { id: "groundhog", name: "Groundhog", icon: "🐿️", desc: "Visit Feb 2", check: () => { const d=new Date(); return d.getMonth()===1 && d.getDate()===2; } },
             { id: "superbowl", name: "Big Game", icon: "🏈", desc: "Visit Feb 8 '26", check: () => { const d=new Date(); return d.getMonth()===1 && d.getDate()===8; } },
+            { id: "pizza", name: "Pizza Time", icon: "🍕", desc: "Visit Feb 9", check: () => { const d=new Date(); return d.getMonth()===1 && d.getDate()===9; } },
             { id: "cupid", name: "Lover", icon: "💘", desc: "Visit in Feb", check: () => new Date().getMonth()===1 },
+            { id: "twosday", name: "Twosday", icon: "✌️", desc: "Visit Feb 22", check: () => { const d=new Date(); return d.getMonth()===1 && d.getDate()===22; } },
             { id: "leap", name: "No Leap", icon: "🐸", desc: "Visit Feb 28", check: () => { const d=new Date(); return d.getMonth()===1 && d.getDate()===28; } },
             { id: "mario", name: "Mario", icon: "🍄", desc: "Visit Mar 10", check: () => { const d=new Date(); return d.getMonth()===2 && d.getDate()===10; } },
             { id: "pi_day", name: "Pi Day", icon: "🥧", desc: "Visit March 14", check: () => { const d=new Date(); return d.getMonth()===2 && d.getDate()===14; } },
@@ -456,24 +474,38 @@
             { id: "not_found", name: "Not Found", icon: "🚫", desc: "Visit April 4", check: () => { const d=new Date(); return d.getMonth()===3 && d.getDate()===4; } },
             { id: "tax", name: "Tax Day", icon: "💸", desc: "Visit April 15", check: () => { const d=new Date(); return d.getMonth()===3 && d.getDate()===15; } },
             { id: "earth", name: "Earth Day", icon: "🌍", desc: "Visit April 22", check: () => { const d=new Date(); return d.getMonth()===3 && d.getDate()===22; } },
+            { id: "arbor", name: "Arbor", icon: "🌳", desc: "Visit April 24", check: () => { const d=new Date(); return d.getMonth()===3 && d.getDate()===24; } },
             { id: "jedi", name: "The Force", icon: "⚔️", desc: "Visit May 4th", check: () => { const d=new Date(); return d.getMonth()===4 && d.getDate()===4; } },
             { id: "cinco", name: "Cinco", icon: "🌮", desc: "Visit May 5", check: () => { const d=new Date(); return d.getMonth()===4 && d.getDate()===5; } },
+            { id: "teacher", name: "Teacher", icon: "🍎", desc: "Visit May 5", check: () => { const d=new Date(); return d.getMonth()===4 && d.getDate()===5; } },
             { id: "mom", name: "Mom", icon: "🤱", desc: "Visit May 10 '26", check: () => { const d=new Date(); return d.getMonth()===4 && d.getDate()===10; } },
             { id: "raceday", name: "Race Day", icon: "🏎️", desc: "Visit May 24th", check: () => { const d=new Date(); return d.getMonth()===4 && d.getDate()===24; } },
             { id: "memorial", name: "Memorial", icon: "🇺🇸", desc: "Visit May 25th", check: () => { const d=new Date(); return d.getMonth()===4 && d.getDate()===25; } },
+            { id: "burger", name: "Burger", icon: "🍔", desc: "Visit May 28", check: () => { const d=new Date(); return d.getMonth()===4 && d.getDate()===28; } },
+            { id: "donut", name: "Donut", icon: "🍩", desc: "Visit June 5", check: () => { const d=new Date(); return d.getMonth()===5 && d.getDate()===5; } },
             { id: "flag", name: "Flag", icon: "🏳️", desc: "Visit June 14", check: () => { const d=new Date(); return d.getMonth()===5 && d.getDate()===14; } },
             { id: "dad", name: "Dad", icon: "👨‍👧", desc: "Visit Jun 21 '26", check: () => { const d=new Date(); return d.getMonth()===5 && d.getDate()===21; } },
+            { id: "music", name: "Music", icon: "🎵", desc: "Visit Jun 21", check: () => { const d=new Date(); return d.getMonth()===5 && d.getDate()===21; } },
             { id: "half_xmas", name: "Half Xmas", icon: "🎄", desc: "Visit June 25", check: () => { const d=new Date(); return d.getMonth()===5 && d.getDate()===25; } },
             { id: "freedom", name: "Patriot", icon: "🎆", desc: "Visit July 4th", check: () => { const d=new Date(); return d.getMonth()===6 && d.getDate()===4; } },
             { id: "emoji", name: "Emoji", icon: "😀", desc: "Visit July 17", check: () => { const d=new Date(); return d.getMonth()===6 && d.getDate()===17; } },
+            { id: "ice_cream", name: "Ice Cream", icon: "🍦", desc: "Visit July 19", check: () => { const d=new Date(); return d.getMonth()===6 && d.getDate()===19; } },
             { id: "approx", name: "Approx", icon: "≈", desc: "Visit July 22", check: () => { const d=new Date(); return d.getMonth()===6 && d.getDate()===22; } },
             { id: "infinity", name: "Infinity", icon: "♾️", desc: "Visit Aug 8", check: () => { const d=new Date(); return d.getMonth()===7 && d.getDate()===8; } },
+            { id: "cat", name: "Cat", icon: "🐱", desc: "Visit Aug 8", check: () => { const d=new Date(); return d.getMonth()===7 && d.getDate()===8; } },
+            { id: "book", name: "Bookworm", icon: "📚", desc: "Visit Aug 9", check: () => { const d=new Date(); return d.getMonth()===7 && d.getDate()===9; } },
+            { id: "dog", name: "Dog", icon: "🐶", desc: "Visit Aug 26", check: () => { const d=new Date(); return d.getMonth()===7 && d.getDate()===26; } },
             { id: "labor", name: "Labor Day", icon: "🔨", desc: "Visit Sept 7th", check: () => { const d=new Date(); return d.getMonth()===8 && d.getDate()===7; } },
+            { id: "trek", name: "Trekkie", icon: "🖖", desc: "Visit Sept 8", check: () => { const d=new Date(); return d.getMonth()===8 && d.getDate()===8; } },
+            { id: "gamer", name: "Gamer", icon: "🎮", desc: "Visit Sept 12", check: () => { const d=new Date(); return d.getMonth()===8 && d.getDate()===12; } },
             { id: "dev", name: "Dev", icon: "💻", desc: "Visit Sept 13", check: () => { const d=new Date(); return d.getMonth()===8 && d.getDate()===13; } },
             { id: "pirate", name: "Ahoy!", icon: "🏴‍☠️", desc: "Visit Sept 19", check: () => { const d=new Date(); return d.getMonth()===8 && d.getDate()===19; } },
             { id: "groovy", name: "Groovy", icon: "🕺", desc: "Visit Sept 21", check: () => { const d=new Date(); return d.getMonth()===8 && d.getDate()===21; } },
             { id: "equinox", name: "Equinox", icon: "🍂", desc: "Visit Sept 23", check: () => { const d=new Date(); return d.getMonth()===8 && d.getDate()===23; } },
+            { id: "coffee_day", name: "Java", icon: "☕", desc: "Visit Sept 29", check: () => { const d=new Date(); return d.getMonth()===8 && d.getDate()===29; } },
             { id: "fetch", name: "Fetch", icon: "👚", desc: "Visit Oct 3", check: () => { const d=new Date(); return d.getMonth()===9 && d.getDate()===3; } },
+            { id: "taco", name: "Taco", icon: "🌮", desc: "Visit Oct 4", check: () => { const d=new Date(); return d.getMonth()===9 && d.getDate()===4; } },
+            { id: "ten_ten", name: "Ten Ten", icon: "🔟", desc: "Visit Oct 10", check: () => { const d=new Date(); return d.getMonth()===9 && d.getDate()===10; } },
             { id: "spooky", name: "Spooky", icon: "💀", desc: "Visit in Oct", check: () => { const d=new Date(); return d.getMonth()===9; } },
             { id: "mole", name: "Mole", icon: "🧪", desc: "Visit Oct 23", check: () => { const d=new Date(); return d.getMonth()===9 && d.getDate()===23; } },
             { id: "mischief", name: "Mischief", icon: "😈", desc: "Visit Oct 30", check: () => { const d=new Date(); return d.getMonth()===9 && d.getDate()===30; } },
@@ -482,8 +514,11 @@
             { id: "fibonacci", name: "Fibonacci", icon: "🐚", desc: "Visit Nov 23", check: () => { const d=new Date(); return d.getMonth()===10 && d.getDate()===23; } },
             { id: "turkey", name: "Stuffed", icon: "🍗", desc: "Visit in Nov", check: () => { const d=new Date(); return d.getMonth()===10; } },
             { id: "black_fri", name: "Shopper", icon: "🛍️", desc: "Visit Nov 27th", check: () => { const d=new Date(); return d.getMonth()===10 && d.getDate()===27; } },
+            { id: "ninja", name: "Ninja", icon: "🥷", desc: "Visit Dec 5", check: () => { const d=new Date(); return d.getMonth()===11 && d.getDate()===5; } },
+            { id: "hoosier", name: "Hoosier", icon: "🌽", desc: "Visit Dec 11", check: () => { const d=new Date(); return d.getMonth()===11 && d.getDate()===11; } },
             { id: "grinch", name: "Grinch", icon: "🟢", desc: "Visit Dec 24", check: () => { const d=new Date(); return d.getMonth()===11 && d.getDate()===24; } },
             { id: "boxer", name: "Boxer", icon: "🥊", desc: "Visit Dec 26", check: () => { const d=new Date(); return d.getMonth()===11 && d.getDate()===26; } },
+            { id: "resolution", name: "Resolution", icon: "📝", desc: "Visit Dec 31st", check: () => { const d=new Date(); return d.getMonth()===11 && d.getDate()===31; } },
             
             // SEASONS & BROWSERS
             { id: "frozen", name: "Frozen", icon: "❄️", desc: "Visit in Winter", check: () => { const m=new Date().getMonth(); return m===11||m===0||m===1; } },
@@ -493,15 +528,19 @@
             { id: "mobile", name: "Pocket", icon: "📱", desc: "Use Mobile", check: () => window.innerWidth <= 768 },
             { id: "desktop", name: "Desktop", icon: "🖥️", desc: "Use Desktop", check: () => window.innerWidth > 1024 },
             { id: "cinema", name: "Cinema", icon: "🎬", desc: "Desktop > 1600px", check: () => window.innerWidth > 1600 },
+            { id: "huge_screen", name: "Huge", icon: "🐘", desc: "Width > 2500px", check: () => window.innerWidth > 2500 },
+            { id: "pixel", name: "Retro", icon: "👾", desc: "Width < 800px", check: () => window.innerWidth < 800 },
+            { id: "tiny_screen", name: "Tiny", icon: "🔬", desc: "Width < 380px", check: () => window.innerWidth < 380 },
             { id: "portrait", name: "Portrait", icon: "⬆️", desc: "Use Portrait Mode", check: () => window.innerHeight > window.innerWidth },
             { id: "landscape", name: "Landscape", icon: "↔️", desc: "Use Landscape Mode", check: () => window.innerWidth > window.innerHeight },
             { id: "chrome", name: "Chrome", icon: "🔘", desc: "Use Chrome", check: () => navigator.userAgent.indexOf("Chrome") != -1 },
             { id: "firefox", name: "Firefox", icon: "🦊", desc: "Use Firefox", check: () => navigator.userAgent.indexOf("Firefox") != -1 },
+            { id: "edge", name: "Edge", icon: "🌊", desc: "Use Edge", check: () => navigator.userAgent.indexOf("Edg") != -1 },
+            { id: "safari", name: "Safari", icon: "🧭", desc: "Use Safari", check: () => navigator.userAgent.indexOf("Safari") != -1 && navigator.userAgent.indexOf("Chrome") == -1 },
+            { id: "opera", name: "Opera", icon: "⭕", desc: "Use Opera", check: () => navigator.userAgent.indexOf("OPR") != -1 },
             { id: "apple", name: "Apple", icon: "🍎", desc: "Use Safari/iPhone", check: () => navigator.userAgent.indexOf("Safari") != -1 && navigator.userAgent.indexOf("Chrome") == -1 },
             { id: "windows", name: "Windows", icon: "💻", desc: "Use Windows PC", check: () => navigator.userAgent.indexOf("Windows") != -1 },
             { id: "android", name: "Android", icon: "🤖", desc: "Use Android", check: () => navigator.userAgent.indexOf("Android") != -1 },
-
-            // FUN / MISC
             { id: "friday13", name: "Bad Luck", icon: "🔪", desc: "Visit Friday the 13th", check: () => { const d=new Date(); return d.getDay()===5 && d.getDate()===13; } },
             { id: "count_300", name: "300 Club", icon: "🛡️", desc: "300 Days Left", check: () => { const r = globalEnd - new Date().getTime(); const d = Math.floor(r/(1000*60*60*24)); return d <= 300; } },
             { id: "count_200", name: "200 Days", icon: "📉", desc: "200 Days Left", check: () => { const r = globalEnd - new Date().getTime(); const d = Math.floor(r/(1000*60*60*24)); return d <= 200; } },
@@ -510,9 +549,6 @@
             { id: "count_10", name: "Final 10", icon: "🔟", desc: "10 Days Left", check: () => { const r = globalEnd - new Date().getTime(); const d = Math.floor(r/(1000*60*60*24)); return d <= 10; } },
             { id: "survivor", name: "Survivor", icon: "👑", desc: "It is Christmas 2026", check: () => new Date().getTime() >= globalEnd }
         ];
-
-        let currentPhaseIndex = -1;
-        let debugClicks = 0;
 
         // --- PROFILE & MODAL FUNCTIONS ---
         function openProfile() {
@@ -531,13 +567,18 @@
         function debugUnlockWish() {
             debugClicks++;
             if (debugClicks >= 3) {
-                const unlocked = JSON.parse(localStorage.getItem('xmas26_badges')) || [];
-                if (!unlocked.includes('wish_maker')) {
-                    unlocked.push('wish_maker');
-                    localStorage.setItem('xmas26_badges', JSON.stringify(unlocked));
-                    alert("DEBUG MODE: Make a Wish Badge Unlocked!");
+                if(!unlockedBadges.includes('wish_maker')) {
+                    saveBadge('wish_maker');
+                    alert("DEBUG: Make a Wish Unlocked!");
                     renderCheatList();
                 }
+            }
+        }
+
+        function saveBadge(badgeId) {
+            if (!unlockedBadges.includes(badgeId)) {
+                unlockedBadges.push(badgeId);
+                localStorage.setItem('xmas26_badges', JSON.stringify(unlockedBadges));
             }
         }
 
@@ -560,25 +601,15 @@
         // --- CHEAT LIST LOGIC ---
         function renderCheatList() {
             const container = document.getElementById('cheat-list');
-            const unlocked = JSON.parse(localStorage.getItem('xmas26_badges')) || [];
             container.innerHTML = '';
-
-            badges.forEach(badge => {
-                const isUnlocked = unlocked.includes(badge.id);
-                const status = isUnlocked ? "✅" : "🔒";
-                const rowClass = isUnlocked ? "unlocked" : "locked";
-                
-                const html = `
-                    <div class="cheat-row ${rowClass}">
-                        <div class="cheat-icon">${badge.icon}</div>
-                        <div class="cheat-info">
-                            <span class="cheat-name">${badge.name}</span>
-                            <span class="cheat-desc">${badge.desc}</span>
-                        </div>
-                        <div class="cheat-status">${status}</div>
-                    </div>
-                `;
-                container.innerHTML += html;
+            badges.forEach(b => {
+                const unlocked = unlockedBadges.includes(b.id);
+                container.innerHTML += `
+                    <div class="cheat-row ${unlocked?'unlocked':'locked'}">
+                        <div class="cheat-icon">${b.icon}</div>
+                        <div class="cheat-info"><span class="cheat-name">${b.name}</span><span class="cheat-desc">${b.desc}</span></div>
+                        <div class="cheat-status">${unlocked?'✅':'🔒'}</div>
+                    </div>`;
             });
         }
 
@@ -595,6 +626,9 @@
                 if(data.user && Array.isArray(data.badges)){
                     localStorage.setItem('xmas26_username', data.user);
                     localStorage.setItem('xmas26_badges', JSON.stringify(data.badges));
+                    unlockedBadges = data.badges;
+                    updateDisplayName();
+                    renderCheatList();
                     location.reload();
                 }
             } catch(e) { alert("Invalid Code"); }
@@ -626,21 +660,18 @@
             r.style.setProperty('--accent-primary', m.colors.p1);
             r.style.setProperty('--accent-secondary', m.colors.p2);
             r.style.setProperty('--text-color', m.colors.text);
-            document.getElementById('current-phase').innerText = "Phase: " + m.name;
+            document.getElementById('current-phase').innerText = "Current Phase: " + m.name;
             spawnParticles(m.particle);
         }
 
         function renderBadges(globalPercent) {
             const container = document.getElementById('badges-container');
-            const unlocked = JSON.parse(localStorage.getItem('xmas26_badges')) || [];
             container.innerHTML = ''; 
-
             badges.forEach(badge => {
-                let isUnlocked = unlocked.includes(badge.id);
+                let isUnlocked = unlockedBadges.includes(badge.id);
                 if (!isUnlocked && badge.check(globalPercent)) {
                     isUnlocked = true;
-                    unlocked.push(badge.id);
-                    localStorage.setItem('xmas26_badges', JSON.stringify(unlocked));
+                    saveBadge(badge.id);
                 }
                 const div = document.createElement('div');
                 div.className = `badge-card ${isUnlocked ? 'unlocked' : ''}`;
@@ -648,14 +679,13 @@
                 div.innerHTML = `<div class="badge-icon">${badge.icon}</div><div class="badge-name">${badge.name}</div>`;
                 container.appendChild(div);
             });
-            document.getElementById('badge-count').innerText = `${unlocked.length} / ${badges.length}`;
+            document.getElementById('badge-count').innerText = `${unlockedBadges.length} / ${badges.length}`;
         }
 
         function updateHub() {
             const now = new Date();
             const nowTime = now.getTime();
             
-            // 1. Next Milestone Logic
             let nextMilestone = null;
             let pIdx = milestones.length - 1;
             let milestoneStart = globalStart;
@@ -675,12 +705,10 @@
 
             document.getElementById('target-name').innerText = nextMilestone.name;
             
-            // Clock
             const dateOptions = { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' };
             document.getElementById('current-date').innerText = now.toLocaleDateString('en-US', dateOptions);
             document.getElementById('current-time').innerText = now.toLocaleTimeString('en-US');
 
-            // Countdown
             const distance = nextMilestone.date - nowTime;
             if (distance < 0) document.getElementById("days").innerText = "0"; 
             else {
@@ -690,7 +718,6 @@
                 document.getElementById("seconds").innerText = Math.floor((distance % (1000 * 60)) / 1000);
             }
 
-            // Local Progress
             const localDuration = nextMilestone.date.getTime() - milestoneStart;
             const localElapsed = nowTime - milestoneStart;
             let localPercentage = (localElapsed / localDuration) * 100;
@@ -700,7 +727,6 @@
             document.getElementById("progress-bar").style.width = localPercentage + "%";
             document.getElementById("percent-text").innerText = localPercentage.toFixed(4) + "%";
 
-            // Global Progress for Badges
             const globalDuration = globalEnd - globalStart;
             const globalElapsed = nowTime - globalStart;
             let globalPercent = (globalElapsed / globalDuration) * 100;
