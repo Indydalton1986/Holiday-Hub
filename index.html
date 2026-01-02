@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>The Holiday Hub 2026: 150 Edition</title>
+    <title>The Holiday Hub 2026: 175 Edition</title>
     <style>
         :root {
             --bg-color: #1a1e23;
@@ -359,7 +359,7 @@
         <div class="achievements-section">
             <div class="section-header">
                 <div class="section-title">Badge Collection</div>
-                <div class="badge-counter" id="badge-count">0 / 150</div>
+                <div class="badge-counter" id="badge-count">0 / 175</div>
             </div>
             <div class="badges-grid" id="badges-container"></div>
         </div>
@@ -389,7 +389,7 @@
             { name: "Christmas '26", date: new Date(2026, 11, 25), colors: { bg: "#1a1e23", card: "#252a30", p1: "#e74c3c", p2: "#2ecc71", text: "#ecf0f1" }, particle: ["❄️", "🎄"] }
         ];
 
-        // --- 150 BADGES ---
+        // --- 175 BADGES ---
         const badges = [
             { id: "early_bird", name: "Early Bird", icon: "🐦", desc: "Visit before 2026 starts", check: (gp) => new Date().getFullYear() === 2025 },
             { id: "year_2026", name: "2026 Club", icon: "📅", desc: "Visit during 2026", check: () => new Date().getFullYear() === 2026 },
@@ -403,12 +403,14 @@
             { id: "noon", name: "High Noon", icon: "🤠", desc: "Visit at 12:00 PM", check: () => { const d=new Date(); return d.getHours()===12 && d.getMinutes()===0; } },
             { id: "lunch", name: "Lunch", icon: "🍔", desc: "Visit 12PM-1PM", check: () => new Date().getHours()===12 },
             { id: "sequence", name: "Sequence", icon: "🔢", desc: "Visit at 12:34", check: () => { const d=new Date(); return d.getHours()===12 && d.getMinutes()===34; } },
+            { id: "staircase", name: "Staircase", icon: "📶", desc: "Visit at 1:23", check: () => { const d=new Date(); return d.getHours()===1 && d.getMinutes()===23; } },
             { id: "leet", name: "Leet", icon: "👾", desc: "Visit at 1:37 PM", check: () => { const d=new Date(); return d.getHours()===13 && d.getMinutes()===37; } },
             { id: "siesta", name: "Siesta", icon: "😴", desc: "Visit 2PM-3PM", check: () => new Date().getHours()===14 },
             { id: "tea_time", name: "Tea Time", icon: "🫖", desc: "Visit 3PM-4PM", check: () => new Date().getHours()===15 },
             { id: "chill", name: "Chill", icon: "🌿", desc: "Visit at 4:20 PM", check: () => { const d=new Date(); return d.getHours()===16 && d.getMinutes()===20; } },
             { id: "happy_hour", name: "Happy Hour", icon: "🍹", desc: "Visit 5PM-6PM", check: () => new Date().getHours()===17 },
             { id: "angel", name: "Angel", icon: "👼", desc: "Visit at 5:55", check: () => { const d=new Date(); const h=d.getHours(); return (h===5||h===17) && d.getMinutes()===55; } },
+            { id: "dinner", name: "Dinner", icon: "🍝", desc: "Visit 6PM-8PM", check: () => { const h=new Date().getHours(); return h>=18 && h<20; } },
             { id: "sunset", name: "Sunset", icon: "🌇", desc: "Visit 6PM-8PM", check: () => { const h=new Date().getHours(); return h>=18 && h<20; } },
             { id: "prime_time", name: "Prime Time", icon: "📺", desc: "Visit 8PM-9PM", check: () => new Date().getHours()===20 },
             { id: "party", name: "Party", icon: "🥳", desc: "Sat Night (8pm-12am)", check: () => { const d=new Date(); return d.getDay()===6 && d.getHours()>=20; } },
@@ -420,6 +422,7 @@
             { id: "minute_man", name: "Quick", icon: "⚡", desc: "First 10s of a minute", check: () => new Date().getSeconds() < 10 },
             { id: "buzzer", name: "Buzzer", icon: "🚨", desc: "Last 10s of a minute", check: () => new Date().getSeconds() > 50 },
             { id: "on_the_dot", name: "On the Dot", icon: "🎯", desc: "Visit at :00 seconds", check: () => new Date().getSeconds() === 0 },
+            { id: "binary", name: "Binary", icon: "0️⃣1️⃣", desc: "Time is only 0s and 1s", check: () => { const d=new Date(); const t = (d.getHours()<10?'0'+d.getHours():d.getHours()) + '' + (d.getMinutes()<10?'0'+d.getMinutes():d.getMinutes()); return /^[01]+$/.test(t); } },
             { id: "palindrome", name: "Palindrome", icon: "🔁", desc: "Visit at 10:01, 12:21, etc", check: () => { const d=new Date(); const h=d.getHours(); const m=d.getMinutes(); const t = (h<10?'0'+h:h) + '' + (m<10?'0'+m:m); return t === t.split('').reverse().join(''); } },
 
             // DAYS & PATTERNS
@@ -437,6 +440,7 @@
             { id: "prime_date", name: "Prime Date", icon: "3️⃣7️⃣", desc: "Visit on the 31st", check: () => new Date().getDate() === 31 },
             { id: "snake_eyes", name: "Snake Eyes", icon: "🎲", desc: "Visit on the 11th", check: () => new Date().getDate() === 11 },
             { id: "dozen", name: "Dozen", icon: "🍩", desc: "Visit on 12/12", check: () => { const d=new Date(); return d.getMonth()===11 && d.getDate()===12; } },
+            { id: "baker", name: "Baker", icon: "🥖", desc: "Visit on the 13th", check: () => new Date().getDate() === 13 },
             { id: "lucky_7", name: "Lucky 7", icon: "🎰", desc: "7th at 7PM", check: () => { const d=new Date(); return d.getDate()===7 && d.getHours()===19; } },
             { id: "devil_6", name: "Beast Hour", icon: "😈", desc: "6th at 6PM", check: () => { const d=new Date(); return d.getDate()===6 && d.getHours()===18; } },
             { id: "sweet_16", name: "Sweet 16", icon: "🎂", desc: "Visit on the 16th", check: () => new Date().getDate() === 16 },
@@ -455,6 +459,7 @@
             { id: "beast", name: "The Beast", icon: "🔥", desc: "66.6% Global Progress", check: (gp) => gp >= 66.6 },
             { id: "three_qt", name: "3/4 Done", icon: "¾", desc: "75% Global Progress", check: (gp) => gp >= 75 },
             { id: "gold", name: "Gold", icon: "🥇", desc: "80% Global Progress", check: (gp) => gp >= 80 },
+            { id: "diamond", name: "Diamond", icon: "💎", desc: "90% Global Progress", check: (gp) => gp >= 90 },
             { id: "almost", name: "Almost", icon: "🤏", desc: "95% Global Progress", check: (gp) => gp >= 95 },
             { id: "endgame", name: "Endgame", icon: "🏁", desc: "99% Global Progress", check: (gp) => gp >= 99 },
 
@@ -464,8 +469,9 @@
             { id: "groundhog", name: "Groundhog", icon: "🐿️", desc: "Visit Feb 2", check: () => { const d=new Date(); return d.getMonth()===1 && d.getDate()===2; } },
             { id: "superbowl", name: "Big Game", icon: "🏈", desc: "Visit Feb 8 '26", check: () => { const d=new Date(); return d.getMonth()===1 && d.getDate()===8; } },
             { id: "pizza", name: "Pizza Time", icon: "🍕", desc: "Visit Feb 9", check: () => { const d=new Date(); return d.getMonth()===1 && d.getDate()===9; } },
-            { id: "cupid", name: "Lover", icon: "💘", desc: "Visit in Feb", check: () => new Date().getMonth()===1 },
+            { id: "cupid", name: "Lover", icon: "💘", desc: "Visit in Feb", check: () => { const d=new Date(); return d.getMonth()===1; } }, // Simplified for month
             { id: "twosday", name: "Twosday", icon: "✌️", desc: "Visit Feb 22", check: () => { const d=new Date(); return d.getMonth()===1 && d.getDate()===22; } },
+            { id: "pika", name: "Pika", icon: "⚡", desc: "Visit Feb 27", check: () => { const d=new Date(); return d.getMonth()===1 && d.getDate()===27; } },
             { id: "leap", name: "No Leap", icon: "🐸", desc: "Visit Feb 28", check: () => { const d=new Date(); return d.getMonth()===1 && d.getDate()===28; } },
             { id: "mario", name: "Mario", icon: "🍄", desc: "Visit Mar 10", check: () => { const d=new Date(); return d.getMonth()===2 && d.getDate()===10; } },
             { id: "pi_day", name: "Pi Day", icon: "🥧", desc: "Visit March 14", check: () => { const d=new Date(); return d.getMonth()===2 && d.getDate()===14; } },
@@ -475,26 +481,33 @@
             { id: "tax", name: "Tax Day", icon: "💸", desc: "Visit April 15", check: () => { const d=new Date(); return d.getMonth()===3 && d.getDate()===15; } },
             { id: "earth", name: "Earth Day", icon: "🌍", desc: "Visit April 22", check: () => { const d=new Date(); return d.getMonth()===3 && d.getDate()===22; } },
             { id: "arbor", name: "Arbor", icon: "🌳", desc: "Visit April 24", check: () => { const d=new Date(); return d.getMonth()===3 && d.getDate()===24; } },
+            { id: "alien", name: "Alien", icon: "👽", desc: "Visit April 26", check: () => { const d=new Date(); return d.getMonth()===3 && d.getDate()===26; } },
             { id: "jedi", name: "The Force", icon: "⚔️", desc: "Visit May 4th", check: () => { const d=new Date(); return d.getMonth()===4 && d.getDate()===4; } },
             { id: "cinco", name: "Cinco", icon: "🌮", desc: "Visit May 5", check: () => { const d=new Date(); return d.getMonth()===4 && d.getDate()===5; } },
             { id: "teacher", name: "Teacher", icon: "🍎", desc: "Visit May 5", check: () => { const d=new Date(); return d.getMonth()===4 && d.getDate()===5; } },
             { id: "mom", name: "Mom", icon: "🤱", desc: "Visit May 10 '26", check: () => { const d=new Date(); return d.getMonth()===4 && d.getDate()===10; } },
             { id: "raceday", name: "Race Day", icon: "🏎️", desc: "Visit May 24th", check: () => { const d=new Date(); return d.getMonth()===4 && d.getDate()===24; } },
             { id: "memorial", name: "Memorial", icon: "🇺🇸", desc: "Visit May 25th", check: () => { const d=new Date(); return d.getMonth()===4 && d.getDate()===25; } },
+            { id: "towel", name: "Towel", icon: "🧖", desc: "Visit May 25", check: () => { const d=new Date(); return d.getMonth()===4 && d.getDate()===25; } },
             { id: "burger", name: "Burger", icon: "🍔", desc: "Visit May 28", check: () => { const d=new Date(); return d.getMonth()===4 && d.getDate()===28; } },
             { id: "donut", name: "Donut", icon: "🍩", desc: "Visit June 5", check: () => { const d=new Date(); return d.getMonth()===5 && d.getDate()===5; } },
             { id: "flag", name: "Flag", icon: "🏳️", desc: "Visit June 14", check: () => { const d=new Date(); return d.getMonth()===5 && d.getDate()===14; } },
+            { id: "solstice", name: "Solstice", icon: "☀️", desc: "Visit June 20", check: () => { const d=new Date(); return d.getMonth()===5 && d.getDate()===20; } },
             { id: "dad", name: "Dad", icon: "👨‍👧", desc: "Visit Jun 21 '26", check: () => { const d=new Date(); return d.getMonth()===5 && d.getDate()===21; } },
             { id: "music", name: "Music", icon: "🎵", desc: "Visit Jun 21", check: () => { const d=new Date(); return d.getMonth()===5 && d.getDate()===21; } },
             { id: "half_xmas", name: "Half Xmas", icon: "🎄", desc: "Visit June 25", check: () => { const d=new Date(); return d.getMonth()===5 && d.getDate()===25; } },
             { id: "freedom", name: "Patriot", icon: "🎆", desc: "Visit July 4th", check: () => { const d=new Date(); return d.getMonth()===6 && d.getDate()===4; } },
+            { id: "rock", name: "Rock", icon: "🎸", desc: "Visit July 13", check: () => { const d=new Date(); return d.getMonth()===6 && d.getDate()===13; } },
+            { id: "bastille", name: "Bastille", icon: "🇫🇷", desc: "Visit July 14", check: () => { const d=new Date(); return d.getMonth()===6 && d.getDate()===14; } },
             { id: "emoji", name: "Emoji", icon: "😀", desc: "Visit July 17", check: () => { const d=new Date(); return d.getMonth()===6 && d.getDate()===17; } },
             { id: "ice_cream", name: "Ice Cream", icon: "🍦", desc: "Visit July 19", check: () => { const d=new Date(); return d.getMonth()===6 && d.getDate()===19; } },
             { id: "approx", name: "Approx", icon: "≈", desc: "Visit July 22", check: () => { const d=new Date(); return d.getMonth()===6 && d.getDate()===22; } },
             { id: "infinity", name: "Infinity", icon: "♾️", desc: "Visit Aug 8", check: () => { const d=new Date(); return d.getMonth()===7 && d.getDate()===8; } },
             { id: "cat", name: "Cat", icon: "🐱", desc: "Visit Aug 8", check: () => { const d=new Date(); return d.getMonth()===7 && d.getDate()===8; } },
             { id: "book", name: "Bookworm", icon: "📚", desc: "Visit Aug 9", check: () => { const d=new Date(); return d.getMonth()===7 && d.getDate()===9; } },
+            { id: "lefty", name: "Left Hand", icon: "🤚", desc: "Visit Aug 13", check: () => { const d=new Date(); return d.getMonth()===7 && d.getDate()===13; } },
             { id: "dog", name: "Dog", icon: "🐶", desc: "Visit Aug 26", check: () => { const d=new Date(); return d.getMonth()===7 && d.getDate()===26; } },
+            { id: "fair", name: "Fair Day", icon: "🎡", desc: "Visit in August", check: () => { const d=new Date(); return d.getMonth()===7; } },
             { id: "labor", name: "Labor Day", icon: "🔨", desc: "Visit Sept 7th", check: () => { const d=new Date(); return d.getMonth()===8 && d.getDate()===7; } },
             { id: "trek", name: "Trekkie", icon: "🖖", desc: "Visit Sept 8", check: () => { const d=new Date(); return d.getMonth()===8 && d.getDate()===8; } },
             { id: "gamer", name: "Gamer", icon: "🎮", desc: "Visit Sept 12", check: () => { const d=new Date(); return d.getMonth()===8 && d.getDate()===12; } },
@@ -506,16 +519,20 @@
             { id: "fetch", name: "Fetch", icon: "👚", desc: "Visit Oct 3", check: () => { const d=new Date(); return d.getMonth()===9 && d.getDate()===3; } },
             { id: "taco", name: "Taco", icon: "🌮", desc: "Visit Oct 4", check: () => { const d=new Date(); return d.getMonth()===9 && d.getDate()===4; } },
             { id: "ten_ten", name: "Ten Ten", icon: "🔟", desc: "Visit Oct 10", check: () => { const d=new Date(); return d.getMonth()===9 && d.getDate()===10; } },
+            { id: "future", name: "Future", icon: "🚗", desc: "Visit Oct 21", check: () => { const d=new Date(); return d.getMonth()===9 && d.getDate()===21; } },
             { id: "spooky", name: "Spooky", icon: "💀", desc: "Visit in Oct", check: () => { const d=new Date(); return d.getMonth()===9; } },
             { id: "mole", name: "Mole", icon: "🧪", desc: "Visit Oct 23", check: () => { const d=new Date(); return d.getMonth()===9 && d.getDate()===23; } },
             { id: "mischief", name: "Mischief", icon: "😈", desc: "Visit Oct 30", check: () => { const d=new Date(); return d.getMonth()===9 && d.getDate()===30; } },
+            { id: "sandwich", name: "Sandwich", icon: "🥪", desc: "Visit Nov 3", check: () => { const d=new Date(); return d.getMonth()===10 && d.getDate()===3; } },
             { id: "mask", name: "Mask", icon: "🎭", desc: "Visit Nov 5", check: () => { const d=new Date(); return d.getMonth()===10 && d.getDate()===5; } },
             { id: "veteran", name: "Veteran", icon: "🎖️", desc: "Visit Nov 11th", check: () => { const d=new Date(); return d.getMonth()===10 && d.getDate()===11; } },
             { id: "fibonacci", name: "Fibonacci", icon: "🐚", desc: "Visit Nov 23", check: () => { const d=new Date(); return d.getMonth()===10 && d.getDate()===23; } },
             { id: "turkey", name: "Stuffed", icon: "🍗", desc: "Visit in Nov", check: () => { const d=new Date(); return d.getMonth()===10; } },
             { id: "black_fri", name: "Shopper", icon: "🛍️", desc: "Visit Nov 27th", check: () => { const d=new Date(); return d.getMonth()===10 && d.getDate()===27; } },
+            { id: "cyber", name: "Cyber", icon: "🛒", desc: "Visit Nov 30", check: () => { const d=new Date(); return d.getMonth()===10 && d.getDate()===30; } },
             { id: "ninja", name: "Ninja", icon: "🥷", desc: "Visit Dec 5", check: () => { const d=new Date(); return d.getMonth()===11 && d.getDate()===5; } },
             { id: "hoosier", name: "Hoosier", icon: "🌽", desc: "Visit Dec 11", check: () => { const d=new Date(); return d.getMonth()===11 && d.getDate()===11; } },
+            { id: "shortest", name: "Shortest", icon: "🌑", desc: "Visit Dec 21", check: () => { const d=new Date(); return d.getMonth()===11 && d.getDate()===21; } },
             { id: "grinch", name: "Grinch", icon: "🟢", desc: "Visit Dec 24", check: () => { const d=new Date(); return d.getMonth()===11 && d.getDate()===24; } },
             { id: "boxer", name: "Boxer", icon: "🥊", desc: "Visit Dec 26", check: () => { const d=new Date(); return d.getMonth()===11 && d.getDate()===26; } },
             { id: "resolution", name: "Resolution", icon: "📝", desc: "Visit Dec 31st", check: () => { const d=new Date(); return d.getMonth()===11 && d.getDate()===31; } },
@@ -541,6 +558,13 @@
             { id: "apple", name: "Apple", icon: "🍎", desc: "Use Safari/iPhone", check: () => navigator.userAgent.indexOf("Safari") != -1 && navigator.userAgent.indexOf("Chrome") == -1 },
             { id: "windows", name: "Windows", icon: "💻", desc: "Use Windows PC", check: () => navigator.userAgent.indexOf("Windows") != -1 },
             { id: "android", name: "Android", icon: "🤖", desc: "Use Android", check: () => navigator.userAgent.indexOf("Android") != -1 },
+            { id: "linux", name: "Linux", icon: "🐧", desc: "Use Linux", check: () => navigator.userAgent.indexOf("Linux") != -1 },
+            { id: "mac", name: "Mac", icon: "🍏", desc: "Use Mac", check: () => navigator.userAgent.indexOf("Mac") != -1 },
+            { id: "legacy", name: "Legacy", icon: "💾", desc: "Use Other Browser", check: () => navigator.userAgent.indexOf("Chrome") == -1 && navigator.userAgent.indexOf("Firefox") == -1 && navigator.userAgent.indexOf("Safari") == -1 },
+            { id: "dark_mode", name: "Dark Side", icon: "🌑", desc: "Use Dark Mode", check: () => window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches },
+            { id: "light_mode", name: "Light Side", icon: "☀️", desc: "Use Light Mode", check: () => window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches },
+            { id: "touch", name: "Touch", icon: "👆", desc: "Touch Device", check: () => 'ontouchstart' in window },
+            { id: "online", name: "Online", icon: "🟢", desc: "Connected", check: () => navigator.onLine },
             { id: "friday13", name: "Bad Luck", icon: "🔪", desc: "Visit Friday the 13th", check: () => { const d=new Date(); return d.getDay()===5 && d.getDate()===13; } },
             { id: "count_300", name: "300 Club", icon: "🛡️", desc: "300 Days Left", check: () => { const r = globalEnd - new Date().getTime(); const d = Math.floor(r/(1000*60*60*24)); return d <= 300; } },
             { id: "count_200", name: "200 Days", icon: "📉", desc: "200 Days Left", check: () => { const r = globalEnd - new Date().getTime(); const d = Math.floor(r/(1000*60*60*24)); return d <= 200; } },
